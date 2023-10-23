@@ -1,0 +1,5 @@
+- Complete search - 1 solution found.
+	Solutions: 1
+	Building time : 0.067s
+	Resolution time : 0.115s
+	Nodes: 1 (8.7 n/s) 
