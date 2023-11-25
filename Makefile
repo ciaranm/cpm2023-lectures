@@ -1,5 +1,6 @@
 all : tables graphs
 	latexmk -pdf -pdflatex='pdflatex -interaction=nonstopmode %O %S' global-constraints
+	latexmk -pdf -pdflatex='pdflatex -interaction=nonstopmode %O %S' parallel
 	latexmk -pdf -pdflatex='pdflatex -interaction=nonstopmode %O %S' proofs
 
 TABLES =
