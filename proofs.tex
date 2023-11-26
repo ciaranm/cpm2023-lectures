@@ -17,6 +17,7 @@
 \usepackage{pifont}
 \usepackage{bussproofs}
 \usepackage{marvosym}
+\usepackage{multicol}
 
 \usefonttheme{professionalfonts}
 
@@ -161,6 +162,24 @@
 
 % }}}
 
+\newcommand<>{\alertred}[1]{{\color#2{uofgthistle}#1}}
+\newcommand<>{\alertblue}[1]{{\color#2{uofgcobalt}#1}}
+\newcommand<>{\alertgreen}[1]{{\color#2{uofglawn}#1}}
+
+\providecommand{\cdclwidthfirstcol}{0.33\textwidth}
+\providecommand{\cdclwidthsecondcol}{0.65\textwidth}
+\providecommand{\cdclformulaleftadjust}{\hspace{-1.5mm}}
+\renewcommand{\cdclformulaleftadjust}{}
+\providecommand{\landwsp}{\,\land\,}
+\providecommand{\alertedor}{\:\lor\:}
+\newcommand{\olnot}[1]{\overline{#1}}
+\newcommand{\Redlightning}{\alertred{\Lightning}}
+\newcommand{\emptycl}{\bot}
+
+\tikzstyle{state} = [inner sep=1pt]
+\tikzstyle{accept} = [solid, thick]
+\tikzstyle{reject} = [dotted, thick]
+
 \author{Ciaran McCreesh}
 \title{Proof Logging}
 
@@ -169,7 +188,7 @@
 {
     \usebackgroundtemplate{
         \tikz[overlay, remember picture]
-        \node[at=(current page.south), anchor=south, inner sep=0pt]{\includegraphics[keepaspectratio=true, width=\paperwidth]{background5.jpg}};
+        \node[at=(current page.south), anchor=south, inner sep=0pt, yshift=-1cm]{\includegraphics[keepaspectratio=true, width=\paperwidth]{background4.jpg}};
     }
     \begin{frame}[plain,noframenumbering]
         \titlepage
@@ -236,7 +255,7 @@
         \centering\includegraphics[keepaspectratio=true,scale=0.35]{testing2.png}
     }
     \only<4>{
-        \centering ``It is now two decades since it was pointed out that program testing
+        ``It is now two decades since it was pointed out that program testing
         may convincingly demonstrate the presence of bugs, but can never
         demonstrate their absence. After quoting this well-publicized remark
         devoutly, the software engineer returns to the order of the day and
@@ -257,11 +276,15 @@
 \begin{frame}{Another Option?}
     \begin{itemize}
         \item Idea: maybe checking that an answer is right is simpler than
-            checking an algorithm?
+            checking an algorithm?\pause
+        \item This is my research area. It's brand new and I don't know how to explain or teach it
+            yet.\pause
+        \item Or\ldots Maybe I'm trying to justify spending a million pounds of taxpayer and
+            charity money over five years.
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Proof Logging in SAT}
+\begin{frame}[t]{Proof Logging in SAT}
     \only<1>{\begin{itemize}
         \item Certifying algorithms:
             \begin{itemize}
@@ -273,23 +296,45 @@
                 \item Unsat is the hard part.
             \end{itemize}
         \item Huge success for SAT solving.
-    \end{itemize}}\only<2-3>{
+    \end{itemize}}\only<2-4>{
     \begin{center}
         \includegraphics<2>[keepaspectratio=true,scale=0.30]{shortest-math-paper.jpg}
-        \includegraphics<3>[keepaspectratio=true,scale=0.65]{nature.png}
-    \end{center}}
+        \includegraphics<3-4>[keepaspectratio=true,scale=0.65]{nature.png}
+    \end{center}
+
+        \smallskip
+
+        \only<4>{Mathematicians care much more about correctness than software engineers. It's a
+        good thing pure mathematics has lots of real-world applications, whereas software engineering
+        has no impact upon people's lives.}
+}
 \end{frame}
 
 \begin{frame}{SAT Proof Logging Workflow}
+    \vspace*{-1.0em}
     \begin{center}
         \begin{tikzpicture}
-            \node (solver) [inner xsep=3em, inner ysep=0.5em, draw, rounded corners=3pt] { Solver };
+            \node (solver) [%
+            inner xsep=5em,
+            inner ysep=2.5em,
+            draw, rounded corners=3pt] { Solver };
 
-            \node (checker) [right=3cm of solver.north east, anchor=north west,
-            inner xsep=0.5em, draw, rounded corners=3pt, minimum height=6em, visible on=<3->] { Checker };
+            \node (checker) [%
+            right=2cm of solver.north east,
+            anchor=north west,
+            inner xsep=0.25em,
+            draw, rounded corners=3pt,
+            minimum height=12em,
+            visible on=<3->] { Checker };
+
+            \node (print) [anchor=south, above=0cm of solver.south, visible on=<2->] { added print statements };
+            \draw [dotted, visible on=<2->] (solver.west|-print.north) -- (solver.east|-print.north);
 
             \draw [->, thick] (solver.east) -- (solver.east -| checker.west)
-                coordinate [midway] (solutionmid) node [above, midway] { Solution };
+                coordinate [midway] (solutionmid) node [above, midway]
+                {
+                  Result
+                };
 
             \draw [->, thick, rounded corners=3pt, visible on=<2->] (solver.south) -- (solver.south |- checker.west)
                 -- (checker.west) coordinate [midway] (proofmid);
@@ -298,7 +343,7 @@
             \node [above=0cm of prooflabel, visible on=<2->] { Proof };
 
             \coordinate [right=1.5cm of checker.east] (verified);
-            \draw [->, thick, visible on=<4->] (checker.east) -- (verified) node [above, midway] { \ding{51} or \ding{55} };
+            \draw [->, thick, visible on=<4->] (checker.east) -- (verified) node [above, midway] { \textcolor{uofglawn}{\ding{51}} or \textcolor{uofgpillarbox}{\ding{55}} };
 
             \coordinate [left=1.5cm of solver.west] (input);
             \draw [->, thick] (input) -- (solver.west) coordinate [midway] (inputmid) node [above, midway] { Input };
@@ -307,13 +352,13 @@
 
             \draw [->, thick, rounded corners=3pt, visible on=<3->] ($(inputmid)+(-0.2,0)$) -- (inputmid) -- (inputmid |- checkerbotleft) -- (checkerbotleft);
         \end{tikzpicture}
-    \end{center}
-
+      \end{center}
+    \vspace*{-0.7em}
   \begin{enumerate}
   \item<1->
     Run solver on problem input.
   \item<2->
-    Get both a solution and a proof as output.
+    Solver also prints out a proof as part of its output.
   \item<3->
     Feed input + solution + proof to proof checker.
   \item<4->
@@ -362,15 +407,17 @@
 }
     \only<2->{
         \begin{minipage}[c]{0.30\framewidth}
+            Input:
             \begin{align}
                 & x \vee y \vee z \\
                 & \overline{x} \vee \overline{y} \vee \overline{z} \\
                 & \overline{x} \vee y \\
                 & \overline{x} \vee z \\
                 & x \vee \overline{y} \\
-                & x \vee \overline{z}
+                & x \vee \overline{z} \\~\nonumber
             \end{align}
         \end{minipage}\hfill\begin{minipage}[c]{0.60\framewidth}
+            Proof:
             \begin{align}
                 & 1, 5 \operatorname{on} y && x \vee z \\
                 & 6, 7 \operatorname{on} z && x \\
@@ -401,59 +448,133 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Backtracking Search as RUP}
-    \only<1>{
-        \begin{itemize}
-            \item Every time you backtrack, output a RUP step for the sequence of guesses you just
-                made.
-        \end{itemize}
-    }
-    \only<2->{
-        \setcounter{equation}{0}
-        \begin{minipage}[t]{0.30\framewidth}
-            \begin{align}
-                & x \vee y \vee z \\
-                & \overline{x} \vee \overline{y} \vee \overline{z} \\
-                & \overline{x} \vee y \\
-                & \overline{x} \vee z \\
-                & x \vee \overline{y} \\
-                & x \vee \overline{z}
-            \end{align}
-        \end{minipage}\hfill\begin{minipage}[t]{0.60\framewidth}
-            \only<3->{
-            \begin{align}
-                \operatorname{RUP} x &&&\phantom{ \overline{x} \operatorname{assumed} }
-                \only<4>{
-                    \\
-                \nonumber &&& \overline{x} \operatorname{assumed} \\
-                \nonumber &&& \overline{y} \operatorname{from} 5 \\
-                \nonumber &&& \overline{z} \operatorname{from} 6 \\
-                \nonumber &&& x \operatorname{from} 1
-            }
-                \only<5->{
-                    \\
-                \operatorname{RUP} \overline{x} &&&
-                \only<6>{
-                    \\
-                \nonumber &&& x \operatorname{assumed} \\
-                \nonumber &&& y \operatorname{from} 3 \\
-                \nonumber &&& z \operatorname{from} 4 \\
-                \nonumber &&& \overline{x} \operatorname{from} 2
-            }
-            }
-                \only<7->{
-                \\
-                \operatorname{RUP} \emptyset &&&
-                \only<8>{
-                    \\
-                \nonumber &&& x \operatorname{from} 7 \\
-                \nonumber &&& \overline{x} \operatorname{from} 8
-            }
-        }
-            \end{align}}
+\begin{frame}[t]{Proofs for Davis-Putman-Logemann-Loveland (DPLL) SAT Solving}
 
-        \end{minipage}
-    }
+  Very simple backtracking SAT solver: assign variables and propagate;
+  backtrack when clause violated.
+
+    \medskip
+
+  When backtracking, write out negation of each guess as a RUP proof step.
+
+  \begin{equation*}%
+    \cdclformulaleftadjust
+    (
+    \alertgreen<5-5>{p}
+    \lor
+    \alertred<4-5>{\overline{u}}
+    )
+    \landwsp
+    (
+    q
+    \lor
+    r
+    )
+    \landwsp
+    (
+    \overline{r}
+    \lor
+    w
+    )
+    \landwsp
+    (
+    \alertgreen<4-5>{u}
+    \lor
+    \only<1-8>{\alertred<2-8>{x}}
+    \only<9->{\alertgreen<9-10>{x}}
+    \lor
+    \only<1-5>{\alertred<3-5>{y}}
+    \only<6->{\alertgreen<6-7>{y}}
+    )
+    \landwsp
+    (
+    \only<1-8>{\alertred<2-8>{x}}
+    \only<9->{\alertgreen<9-10>{x}}
+    \lor
+    \only<1-5>{\alertgreen<3-5>{\overline{y}}}
+    \only<6->{\alertred<6-7>{\overline{y}}}
+    \lor
+    \alertgreen<7,10>{z}
+    )
+    \landwsp
+    (
+    \only<1-8>{\alertgreen<2-8>{\overline{x}}}
+    \only<9->{\alertred<9-10>{\overline{x}}}
+    \lor
+    \alertgreen<7,10>{z}
+    )
+    \landwsp
+    (
+    \only<1-5>{\alertgreen<3-5>{\overline{y}}}
+    \only<6->{\alertred<6-7>{\overline{y}}}
+    \alertred<7>{\alertedor}
+    \alertred<7,10>{\overline{z}}
+    )
+    \landwsp
+    (
+    \only<1-8>{\alertgreen<2-8>{\overline{x}}}
+    \only<9->{\alertred<9-10>{\overline{x}}}
+    \alertred<10>{\alertedor}
+    \alertred<7,10>{\overline{z}}
+    )
+    \landwsp
+    (
+    \alertred<5-5>{\overline{p}}
+    \alertred<5-5>{\alertedor}
+    \alertred<4-5>{\overline{u}}
+    )
+  \end{equation*}
+
+  \medskip
+
+  \begin{columns}[T]%
+    \begin{column}{0.4\textwidth}
+
+      \smallskip
+
+      \begin{enumerate}
+      \item <5-> $x \lor y$
+
+        \smallskip
+
+      \item <7-> $x \lor \olnot{y}$
+
+        \smallskip
+
+      \item <8-> $x$
+
+        \smallskip
+
+      \item <10-> $\olnot{x}$
+
+        \smallskip
+
+      \item <11-> $\emptycl$
+      \end{enumerate}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{tikzpicture}[sibling distance=4em, level distance=3.5em, align=center]
+        \node [draw, circle, inner sep=2pt, visible on=<2->] {$x$}
+        child { node [draw, circle, inner sep=2pt, visible on=<3->] {$y$}
+          child { node [visible on=<5->] {\Redlightning} edge from parent [reject, visible on=<3->] node [left, visible on=<3->] {
+$0$  %  $\overline{y}$
+} }
+          child { node [visible on=<7->] {\Redlightning} edge from parent [accept, visible on=<6->] node [right, visible on=<6->] {
+$1$ % $y$
+} }
+          edge from parent [reject, visible on=<2->] node [left, visible on=<2->] {
+$0$ % $\overline{x}$
+}
+        }
+        child { node [visible on=<10->] {\Redlightning}
+          edge from parent [accept, visible on=<9->] node [right, visible on=<9->] {
+$1$  % $x$
+ }
+        }
+        ;
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Some Interesting Facts}
@@ -506,20 +627,47 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Pseudo-Boolean Models}
-    \begin{itemize}
-        \item A set of $\{ 0, 1 \}$-valued variables $x_i$, $1$ means true.
-        \item Constraints are integer linear inequalities \[
-                \sum_i c_i x_i \ge C
-            \]
-        \item Write $\overline{x}_i$ to mean $1 - x_i$.
-        \item Can rewrite CNF to pseudo-Boolean directly, \begin{align*}
-                & x_1 \vee \overline{x}_2 \vee x_3 & \leftrightarrow && x_1 + \overline{x}_2 + x_3 \ge 1
-        \end{align*}
-    \end{itemize}
+\begin{frame}{Pseudo-Boolean Problems}
+    \begin{minipage}[t]{0.25\framewidth}
+        \textcolor{uofgcobalt}{\textbf{Variables}}
+    \end{minipage}\hfill\begin{minipage}[c]{0.70\framewidth}
+        $x_i \in \{ 0, 1 \}$
+    \end{minipage}\bigskip
+
+    \begin{minipage}[t]{0.25\framewidth}
+        \textcolor{uofgcobalt}{\textbf{Literals}}
+    \end{minipage}\hfill\begin{minipage}[c]{0.70\framewidth}
+        $\{ x_i, \overline{x}_i \}$
+
+        \medskip
+
+        $\overline{x}_i$ defined to be $1 - x_i$, means ``not $x$''
+    \end{minipage}\bigskip
+
+    \begin{minipage}[t]{0.25\framewidth}
+        \textcolor{uofgcobalt}{\textbf{Constraints}}
+    \end{minipage}\hfill\begin{minipage}[c]{0.70\framewidth}
+        $\sum_i a_i x_i \bowtie A$ for $a_i, A \in \mathbb{Z}$ and $\bowtie \,\in \{ \le, \ge \}$
+
+        \medskip
+        Can rewrite into normalised form with $a_i, A \in \mathbb{N}$ and $\bowtie\,=\,\ge$
+    \end{minipage}
 \end{frame}
 
-\begin{frame}{Cutting Planes Proofs}
+\begin{frame}{Implications as Pseudo-Boolean Constraints}
+    Can express implications
+    \begin{equation*} y \Rightarrow 3x_1 + 2x_2 + x_3 + x_4 \ge 3 \end{equation*}
+    as
+    \begin{equation*}
+    3\overline{y} + 3x_1 + 2x_2 + x_3 + x_4 \ge 3
+    \end{equation*}
+
+    \bigskip
+
+    We can also do $\land_i y_i \Rightarrow C$ and $y \Leftarrow C$.
+\end{frame}
+
+\begin{frame}{Cutting Planes Proofs 1: Linear Inequalities}
     \begin{minipage}[c]{0.35\framewidth}
         \textcolor{uofgcobalt}{\textbf{Model axioms}}
     \end{minipage}\hfill\begin{minipage}[c]{0.60\framewidth}
@@ -540,27 +688,90 @@
     \end{minipage}\hfill\begin{minipage}[c]{0.60\framewidth}\begin{prooftree}
         \AxiomC{$\sum_i a_i \ell_i \ge A$}
         \UnaryInfC{$\sum_i { c a_i \ell_i } \ge c A$}
-    \end{prooftree}\end{minipage}\bigskip
+    \end{prooftree}\end{minipage}
+\end{frame}
 
-    \begin{minipage}[c]{0.35\framewidth}
-        \textcolor{uofgcobalt}{\textbf{Division}}\\
-        for any $c \in \mathbb{N^+}$
-    \end{minipage}\hfill\begin{minipage}[c]{0.60\framewidth}\begin{prooftree}
-        \AxiomC{$\sum_i a_i \ell_i \ge A$}
-        \UnaryInfC{$\sum_i {\left\lceil \frac{a_i}{c} \right\rceil} \ell_i \ge \left\lceil \frac{A}{c} \right\rceil$}
-    \end{prooftree}\end{minipage}\bigskip
-
+\begin{frame}{Cutting Planes Proofs 2: 0-1 Variables}
     \begin{minipage}[c]{0.35\framewidth}
         \textcolor{uofgcobalt}{\textbf{Literal axioms}}
     \end{minipage}\hfill\begin{minipage}[c]{0.60\framewidth}\begin{prooftree}
         \AxiomC{~}
         \UnaryInfC{$\ell_i \ge 0$}
     \end{prooftree}\end{minipage}\bigskip
+
+    \begin{minipage}[c]{0.35\framewidth}
+        \textcolor{uofgcobalt}{\textbf{Division}}\\
+        for any $c \in \mathbb{N^+}$ \\
+        assumes normalised form
+    \end{minipage}\hfill\begin{minipage}[c]{0.60\framewidth}\begin{prooftree}
+        \AxiomC{$\sum_i a_i \ell_i \ge A$}
+        \UnaryInfC{$\sum_i {\left\lceil \frac{a_i}{c} \right\rceil} \ell_i \ge \left\lceil \frac{A}{c} \right\rceil$}
+    \end{prooftree}\end{minipage}\bigskip
+
+    \begin{minipage}[c]{0.35\framewidth}
+        \textcolor{uofgcobalt}{\textbf{Saturation}}\\
+        assumes normalised form
+    \end{minipage}\hfill\begin{minipage}[c]{0.60\framewidth}\begin{prooftree}
+        \AxiomC{$\sum_i a_i \ell_i \ge A$}
+        \UnaryInfC{$\sum_i \operatorname{min}\left(a_i, A\right) \ell_i \ge A$}
+    \end{prooftree}\end{minipage}
 \end{frame}
 
-\begin{frame}{Reverse Unit Propagation Proofs}
+\begin{frame}{CNF, Resolution, and Implications}
+    Pseudo-Boolean constraints are a superset of CNF clauses:
+    \begin{equation*}
+        a \lor \overline{b} \lor c \qquad \Leftrightarrow \qquad a + \overline{b} + c \ge 1
+    \end{equation*}
+
+    Remember the resolution rule:\bigskip
+
+    \begin{minipage}[c]{0.35\framewidth}
+        \textcolor{uofgcobalt}{\textbf{Resolution}}
+    \end{minipage}\hfill\begin{minipage}[c]{0.60\framewidth}\begin{prooftree}
+        \AxiomC{$a_1 \lor a_2 \lor \cdots \lor c$}
+        \AxiomC{$\overline{c} \lor b_1 \lor b_2 \lor \cdots$}
+        \BinaryInfC{$a_1 \lor a_2 \lor \cdots b_1 \lor b_2 \lor \cdots$}
+    \end{prooftree}\end{minipage}\bigskip
+
+    We can simulate this in cutting planes using addition then saturation.
+
+    \pause
+    \bigskip
+
+    Another way of viewing this is:\bigskip
+
+    \begin{minipage}[c]{0.35\framewidth}
+        \textcolor{uofgcobalt}{\textbf{Resolution}}
+    \end{minipage}\hfill\begin{minipage}[c]{0.60\framewidth}\begin{prooftree}
+        \AxiomC{$(\overline{a}_1 \land \overline{a}_2 \land \cdots) \Rightarrow c$}
+        \AxiomC{$c \Rightarrow (b_1 \lor b_2 \lor \cdots)$}
+        \BinaryInfC{$(\overline{a}_1 \land \overline{a}_2 \land \cdots) \Rightarrow (b_1 \lor b_2 \lor \cdots)$}
+    \end{prooftree}\end{minipage}
+\end{frame}
+
+\begin{frame}{Extended Cutting Planes Proofs}
+    We'll also need a way of introducing a new variable that are true if and only if a certain
+    constraint holds (\emph{reification}).
+
+    \bigskip
+
+    \begin{minipage}[c]{0.35\framewidth}
+        \textcolor{uofgcobalt}{\textbf{Extension}}\\
+        $y$ a fresh variable \\
+        $C$ any constraint
+    \end{minipage}\hfill\begin{minipage}[c]{0.60\framewidth}\begin{prooftree}
+        \AxiomC{~}
+        \UnaryInfC{$y \Rightarrow C$ \qquad $y \Leftarrow C$}
+    \end{prooftree}\end{minipage}
+
+    \bigskip
+
+    In reality: we have a more general extension rule, but we don't need it today.
+\end{frame}
+
+\begin{frame}{Reverse Unit Propagation (RUP) Proofs Revisited}
     \begin{itemize}
-        \item ``Unit propagation'' means integer bounds consistency.
+        \item ``Unit propagation'' now means integer bounds consistency.
         \item A pseudo-Boolean constraint $C$ follows by ``reverse unit propagation'' (RUP) if\ldots
             \begin{itemize}
                 \item Negating $C$, and
@@ -576,51 +787,129 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Extension Variables}
-    \begin{itemize}
-        \item Given a pseudo-Boolean constraint $C$ and a fresh variable $y$, introduce
-            \[ y \leftrightarrow C \]
-    \end{itemize}
+\begin{frame}{Another RUP Proof}
+    \begin{minipage}[c]{0.45\framewidth}
+        \begin{align*}
+            2 x_1 + 2 x_2 + 3 x_3 + x_4 + 3 x_5 + 2 x_6 &\le 5 \\
+            3 x_1 + 3 x_2 + 4 x_3 + x_4 + 3 x_5 + x_6   &\ge 8
+        \end{align*}
+        \pause
+        \begin{center}
+            \tikzstyle{level 1}=[level distance=1.20cm, sibling distance=2.00cm]
+            \tikzstyle{level 2}=[level distance=1.20cm, sibling distance=1.00cm]
+            \tikzstyle{level 3}=[level distance=1.20cm, sibling distance=0.5cm]
+        \begin{tikzpicture}
+            \node [state] { $x_1$ }
+            child {
+                node [state] { $x_2$ }
+                child {
+                    node {\Redlightning}
+                    edge from parent [reject]
+                }
+                child {
+                    node [state] { $x_3$ }
+                    child {
+                        node {\Redlightning}
+                        edge from parent [reject]
+                    }
+                    child {
+                        node {\Redlightning}
+                        edge from parent [accept]
+                    }
+                    edge from parent [accept]
+                }
+                edge from parent [reject]
+            }
+            child {
+                node [state] { $x_2$ }
+                child {
+                    node [state] { $x_3$ }
+                    child {
+                        node {\Redlightning}
+                        edge from parent [reject]
+                    }
+                    child {
+                        node {\Redlightning}
+                        edge from parent [accept]
+                    }
+                    edge from parent [reject]
+                }
+                child {
+                    node {\Redlightning}
+                    edge from parent [accept]
+                }
+                edge from parent [accept]
+            }
+            ;
+        \end{tikzpicture}
+        \end{center}
+    \end{minipage}\hfill
+    \begin{minipage}[c]{0.45\framewidth}
+        \begin{align*}
+            \uncover<3->{\operatorname{rup}~ & x_1 + x_2 \ge 1} \\
+            \uncover<4->{\operatorname{rup}~ & x_1 + \overline{x}_2 + x_3 \ge 1} \\
+            \uncover<5->{\operatorname{rup}~ & x_1 + \overline{x}_2 + \overline{x}_3 \ge 1} \\
+            \uncover<6->{\operatorname{rup}~ & x_1 + \overline{x}_2 \ge 1} \\
+            \uncover<7->{\operatorname{rup}~ & x_1 \ge 1} \\
+            \uncover<8->{\operatorname{rup}~ & \overline{x}_1 + x_2 + x_3 \ge 1} \\
+            \uncover<8->{\operatorname{rup}~ & \overline{x}_1 + x_2 + \overline{x}_3 \ge 1} \\
+            \uncover<8->{\operatorname{rup}~ & \overline{x}_1 + x_2 \ge 1} \\
+            \uncover<8->{\operatorname{rup}~ & \overline{x}_1 \ge 1} \\
+            \uncover<9->{\operatorname{rup}~ & 0 \ge 1}
+        \end{align*}
+    \end{minipage}
 \end{frame}
 
 \begin{frame}{A Slightly Different Workflow}
     \begin{center}
         \begin{tikzpicture}
-            \node (solver) [inner xsep=3em, inner ysep=0.5em, draw, rounded corners=3pt] { Solver };
+            \node (solver) [inner xsep=5.5em, inner ysep=2.5em, draw, rounded corners=3pt] { Solver };
 
-            \node (checker) [right=3cm of solver.north east, anchor=north west,
-            inner xsep=0.5em, draw, rounded corners=3pt, minimum height=6em, visible on=<3->] { Checker };
+            \node (proofprinter) [
+                inner ysep=.2em,
+                rounded corners=3pt, anchor=south, xshift=1em, visible on=<4->] at (solver.south) { added print statements };
+
+            \node (oldchecker) [right=2cm of solver.north east, anchor=north west,
+            inner xsep=0.5em, draw, rounded corners=3pt, minimum height=12em,
+            text width=4em, align=center, visible on=<1>] { \phantom{General}  Checker \phantom{Purpose} };
+
+            \node (checker) [right=2cm of solver.north east, anchor=north west,
+            inner xsep=0.5em, draw, rounded corners=3pt, minimum height=12em,
+            text width=4em, align=center, visible on=<2->] { General Purpose Checker };
 
             \draw [->, thick] (solver.east) -- (solver.east -| checker.west)
-                coordinate [midway] (solutionmid) node [above, midway] { Solution };
+                coordinate [midway] (solutionmid) node [above, midway] { Result };
 
-            \draw [->, thick, rounded corners=3pt, visible on=<2->] (solver.south) -- (solver.south |- checker.west)
+            \draw [->, thick, rounded corners=3pt] (solver.south) -- (solver.south |- checker.west)
                 -- (checker.west) coordinate [midway] (proofmid);
 
             \coordinate (prooflabel) at (proofmid-|solutionmid);
-            \node [above=0cm of prooflabel, visible on=<2->] { Proof };
+            \node [above=0cm of prooflabel] { Proof };
 
             \coordinate [right=1.5cm of checker.east] (verified);
-            \draw [->, thick, visible on=<5->] (checker.east) -- (verified) node [above, midway] { \ding{51} or \ding{55} };
+            \draw [->, thick] (checker.east) -- (verified) node [above, midway] { \textcolor{uofglawn}{\ding{51}} or \textcolor{uofgpillarbox}{\ding{55}} };
 
             \coordinate [left=1.5cm of solver.west] (input);
             \draw [->, thick] (input) -- (solver.west) coordinate [midway] (inputmid) node [above, midway] { Input };
 
             \coordinate (checkerbotleft) at ($(checker.west)+($(checker.west)-(solver.east-|checker.west)$)$);
 
-            \draw [->, thick, rounded corners=3pt, visible on=<3>] ($(inputmid)+(-0.2,0)$) --
-            (inputmid) -- (inputmid |- checkerbotleft) -- (checkerbotleft) coordinate [midway] (altinputmid);
             \coordinate (solverstart) at ($(solver.south)!0.75!(solver.south west)$);
             \coordinate (solverstart2) at ($(solver.south)!0.65!(solver.south west)$);
-            \draw [dotted, visible on=<4->] (solverstart2) -- (solverstart2 |- solver.north);
-            \draw [->, thick, rounded corners=3pt, visible on=<4->] (solverstart) -- (solverstart |- checkerbotleft) -- (checkerbotleft);
+            \draw [dotted, visible on=<3->] (solverstart2) -- (solverstart2 |- solver.north);
+            \draw [->, thick, rounded corners=3pt, visible on=<3->] (solverstart) -- (solverstart |- checkerbotleft) -- (checkerbotleft);
+
+            \draw [->, thick, rounded corners=3pt, visible on=<1-2>] ($(inputmid)+(-0.2,0)$) --
+            (inputmid) -- (inputmid |- checkerbotleft) -- (checkerbotleft) coordinate [midway] (altinputmid);
+
+            \draw [dotted, visible on=<4->] (solverstart2|-proofprinter.north) -- (solver.east|-proofprinter.north);
 
             \coordinate (prooflabel) at (altinputmid-|solutionmid);
-            \node [above=0cm of prooflabel, visible on=<4->] { Encoded Input };
+            \node [above=0cm of prooflabel, xshift=-1.8cm, visible on=<3->] { Very Simple Encoding of Input };
         \end{tikzpicture}
-    \end{center}
+      \end{center}
 
-    \uncover<6->{
+    \uncover<5->{
     \begin{itemize}
         \item Keep the compilation simple!
         \item For now: testing.
@@ -658,21 +947,6 @@
     We can do this in the pseudo-Boolean model, where needed, or lazily inside
     the proof using extension variables.
 }}
-\end{frame}
-
-\begin{frame}{Introducing Useful Facts About Variables}
-    When creating $x_{{=}i}$, also introduce
-    \begin{align*}
-        x_{{\ge}i} \rightarrow x_{{\ge}j} \quad \text{and} \quad x_{{\ge}h} \rightarrow x_{{\ge}i}
-    \end{align*}
-    for the closest two values $h$ and $j$ that already have equality variables.
-
-    \bigskip\pause
-
-    All-different is easier if we introduce \begin{align*}
-    \sum_{i=\ell}^{u} x_{{=}i} \ge 1
-    \end{align*}
-    which is also easy to do in a proof.
 \end{frame}
 
 \begin{frame}{Compiling Constraints}
@@ -760,148 +1034,237 @@
     Integer linear inequalities: the slack algorithm gives an easy proof.
 \end{frame}
 
-\begin{frame}[t]{Justifying All-Different Failures}
-    \begin{tabular}{r@{\hspace*{0mm}}c@{\hspace*{0.6mm}}c@{\hspace*{0.6mm}}c@{\hspace{0.6mm}}c@{\hspace*{0.6mm}}r@{\hspace*{3mm}}r@{\hspace*{0.8mm}}r@{\hspace*{0.8mm}}r@{\hspace*{0.8mm}}r@{\hspace*{0.8mm}}r@{\hspace*{0.8mm}}r@{\hspace*{0.8mm}}r@{\hspace*{0.8mm}}r@{\hspace*{0.8mm}}r@{\hspace*{0.8mm}}l}
-    $v \in \{$ &
-    1 &
-      &
-      &
-        4 \hspace*{1.2mm} 5 &
-    $\}$ &
+\begin{frame}[t]{Justifying All-Different Failures}%
+\begin{tabular}
+    {r@{\hspace*{0mm}}c@{\hspace*{0.5mm}}c@{\hspace*{0.5mm}}c@{\hspace{0.5mm}}c@{\hspace*{0.5mm}}
+    r@{\hspace*{3mm}}
+    r@{\hspace*{0.7mm}}r@{\hspace*{0.7mm}}r@{\hspace*{0.7mm}}r@{\hspace*{0.7mm}}r@{\hspace*{0.7mm}}r@{\hspace*{0.7mm}}r@{\hspace*{0.7mm}}r@{\hspace*{0.7mm}}r@{\hspace*{0.7mm}}
+    ll}
+    $V \in \{$
+    &
+      $1$
     &
     &
     &
+      $4$ \hspace*{1.2mm} $5$
     &
+      $\}$
+    & \phantom{$-v_{{=}1}$}
     &
+    & \phantom{$-w_{{=}1}$}
     &
+    & \phantom{$-x_{{=}1}$}
     &
+    & \phantom{$-y_{{=}1}$}
     &
+    & \phantom{$-z_{{=}1}$}
     &
     \\
 
-        $\only<1>{w}\only<2->{{\color{uofgcobalt}w}} \in \{$ &
-    1 &
-    2 &
-    3 &
-        &
-    $\}$ &
-        $\only<1-2>{\phantom{w_{{=}1}}}\only<3->{w_{{=}1}}$ &
-        $\only<1-2>{\phantom{+}}\only<3->{+}$ &
-        $\only<1-2>{\phantom{w_{{=}2}}}\only<3->{w_{{=}2}}$ &
-        $\only<1-2>{\phantom{+}}\only<3->{+}$ &
-        $\only<1-2>{\phantom{w_{{=}3}}}\only<3->{w_{{=}3}}$ &
+    $\alertblue<2->{W}
+    \in \{$
+    &
+      \alertred<3>{$1$}
+    &
+      \alertred<3>{$2$}
+    &
+      \alertred<3>{$3$}
     &
     &
-        &
-        &
-        $\only<1-2>{\phantom{ \ge 1}}\only<3->{ \ge 1}$
-        \\
+      $\}$
+    &
+      $
+      \only<1-2>{\phantom{w_{{=}1}}}\only<3->{\alertred<3>{w_{{=}1}}}
+      $
+    &
+      $\only<1-2>{\phantom{+}}\only<3->{\alertred<3>{+}}$
+    &
+      $\only<1-2>{\phantom{w_{{=}2}}}\only<3->{\alertred<3>{w_{{=}2}}}$
+    &
+      $\only<1-2>{\phantom{+}}\only<3->{\alertred<3>{+}}$
+    &
+      $\only<1-2>{\phantom{w_{{=}3}}}\only<3->{\alertred<3>{w_{{=}3}}}$
+    &
+    &
+    &
+    &
+    &
+      $\only<1-2>{\phantom{ \ge 1}}\only<3->{\alertred<3>{ \ge 1}}$
+    &
+      \uncover<3->{
+      $W\!$ takes some value}
+    \\
+    $\alertblue<2->{X} \in \{$
+    &
+    &
+      $2$
+    &
+      $3$
+    &
+    &
+      $\}$ &
+    &
+    &
+      $\only<1-3>{\phantom{x_{{=}2}}}\only<4->{x_{{=}2}}$
+    &
+      $\only<1-3>{\phantom{+}}\only<4->{+}$
+    &
+      $\only<1-3>{\phantom{x_{{=}3}}}\only<4->{x_{{=}3}}$
+    &
+    &
+    &
+    &
+    &
+      $\only<1-3>{\phantom{ \ge 1}}\only<4->{ \ge 1}$
+    &
+      \uncover<4->{
+      $X$ takes some value}
+    \\
+    $\alertblue<2->{Y} \in \{$
+    &
+      $1$
+    &
+    &
+      $3$
+    &
+    &
+      $\}$
+    &
+      $\only<1-3>{\phantom{y_{{=}1}}}\only<4->{y_{{=}1}}$
+    &
+    &
+    &
+      $\only<1-3>{\phantom{+}}\only<4->{+}$
+    &
+      $\only<1-3>{\phantom{y_{{=}3}}}\only<4->{y_{{=}3}}$
+    &
+    &
+    &
+    &
+    &
+      $\only<1-3>{\phantom{ \ge 1}}\only<4->{ \ge 1}$
+    &
+      \uncover<4->{
+      $Y$ takes some value
+      }
+    \\
+    $\alertblue<2->{Z} \in \{$
+    &
+      $1$
+    &
+    &
+      $3$
+    &
+    &
+      $\}$
+    &
+      $\only<1-3>{\phantom{z_{{=}1}}}\only<4->{z_{{=}1}}$
+    &
+    &
+    &
+      $\only<1-3>{\phantom{+}}\only<4->{+}$
+    &
+      $\only<1-3>{\phantom{z_{{=}3}}}\only<4->{z_{{=}3}}$
+    &
+    &
+    &
+    &
+    &
+      $\only<1-3>{\phantom{ \ge 1}}\only<4->{ \ge 1}$
+    &
+      \uncover<4->{
+      $Z$ takes some value
+      }
+    \\[0.5cm]
 
-        $\only<1>{x}\only<2->{{\color{uofgcobalt}x}} \in \{$ &
+    \only<5->{
     &
-    2 &
-    3 &
-        &
-    $\}$ &
-        &
-        &
-        $\only<1-3>{\phantom{x_{{=}2}}}\only<4->{x_{{=}2}}$ &
-        $\only<1-3>{\phantom{+}}\only<4->{+}$ &
-        $\only<1-3>{\phantom{x_{{=}3}}}\only<4->{x_{{=}3}}$ &
-        &
-        &
-        &
-        &
-        $\only<1-3>{\phantom{ \ge 1}}\only<4->{ \ge 1}$
-        \\
-
-        $\only<1>{y}\only<2->{{\color{uofgcobalt}y}} \in \{$ &
-    1 &
-    &
-    3 &
-        &
-    $\}$ &
-        $\only<1-3>{\phantom{y_{{=}1}}}\only<4->{y_{{=}1}}$ &
-        &
-        &
-        $\only<1-3>{\phantom{+}}\only<4->{+}$ &
-        $\only<1-3>{\phantom{y_{{=}3}}}\only<4->{y_{{=}3}}$ &
-    &
-    &
-        &
-        &
-        $\only<1-3>{\phantom{ \ge 1}}\only<4->{ \ge 1}$
-        \\
-
-        $\only<1>{z}\only<2->{{\color{uofgcobalt}z}} \in \{$ &
-    1 &
-    &
-    3 &
-        &
-    $\}$ &
-        $\only<1-3>{\phantom{z_{{=}1}}}\only<4->{z_{{=}1}}$ &
-        &
-        &
-        $\only<1-3>{\phantom{+}}\only<4->{+}$ &
-        $\only<1-3>{\phantom{z_{{=}3}}}\only<4->{z_{{=}3}}$ &
-    &
-    &
-        &
-        &
-        $\only<1-3>{\phantom{ \ge 1}}\only<4->{ \ge 1}$
-        \\[0.5cm]
-
-        \only<5->{
-    &
-    $\rightarrow$ &
+      $\rightarrow$
     &
     &
     &
     &
-    $-v_{{=}1}$ &
-    $+$ &
-    $-w_{{=}1}$ &
-    $+$ &
     &
-     &
-    $-y_{{=}1}$ &
-    $+$ &
-    $-z_{{=}1}$ &
-    $ \ge -1$ \\
+      $-v_{{=}1}$
+    &
+      $+$
+    &
+      $-w_{{=}1}$
+    &
+      $+$
+    &
+    &
+    &
+      $-y_{{=}1}$
+    &
+      $+$
+    &
+      $-z_{{=}1}$
+    &
+      $ \ge -1$
+    &
+      \uncover<5->{
+      At most  one variable
+      $=1$
+      }
+    \\
 
     &
     &
-    $\rightarrow$ &
+      $\rightarrow$
     &
     &
     &
     &
     &
-    $-w_{{=}2}$ &
-    $+$ &
-    $-x_{{=}2}$ &
-     &
     &
-     &
+      $-w_{{=}2}$
     &
-    $ \ge -1$ \\
+      $+$
+    &
+      $-x_{{=}2}$
+    &
+    &
+    &
+    &
+    &
+      $ \ge -1$
+    &
+      \uncover<5->{
+      At most  one variable
+      $=2$
+      }
+    \\
 
     &
     &
     &
-    $\rightarrow$ &
+      $\rightarrow$
     &
     &
     &
     &
-    $-w_{{=}3}$ &
-    $+$ &
-    $-x_{{=}3}$ &
-    $+$ &
-    $-y_{{=}3}$ &
-    $+$ &
-    $-z_{{=}3}$ &
+    &
+      $-w_{{=}3}$
+    &
+      $+$
+    &
+      $-x_{{=}3}$
+    &
+      $+$
+    &
+      $-y_{{=}3}$
+    &
+      $+$
+    &
+      $-z_{{=}3}$
+    &
     $ \ge -1$
+    &
+      \uncover<5->{
+      At most  one variable
+      $=3$
+      }
     \\[0.5cm]
 }
 \only<6->{
@@ -911,17 +1274,23 @@
     &
     &
     &
-    $-v_{{=}1}$ &
-     &
+      $-v_{{=}1}$
     &
     &
     &
-     &
-     &
-     &
-     &
-    $ \ge 1$ \\
-}
+    &
+    &
+    &
+    &
+    &
+    &
+      $ \ge 1$
+    &
+      \uncover<5->{
+      Sum all constraints so far
+      }
+    \\
+    }
 \only<7->{
     &
     &
@@ -929,16 +1298,22 @@
     &
     &
     &
-    $ v_{{=}1}$ &
-     &
+      $ v_{{=}1}$
     &
     &
     &
-     &
-     &
-     &
-     &
-    $ \ge 0$ \\[0.5cm]
+    &
+    &
+    &
+    &
+    &
+    &
+      $ \ge 0$
+    &
+      \uncover<5->{
+      Variable $ v_{{=}1}$ non-negative
+      }
+    \\[0.5cm]
 }
 \only<8->{
     &
@@ -947,16 +1322,22 @@
     &
     &
     &
-    $0$ &
-     &
+      $0$
     &
     &
     &
-     &
-     &
-     &
-     &
-    $ \ge 1$ \\
+    &
+    &
+    &
+    &
+    &
+    &
+      $ \ge 1$
+    &
+      \uncover<5->{
+      Sum above two constraints
+      }
+    \\
 }
     &
     $\phantom{\rightarrow}$ &
@@ -977,19 +1358,6 @@
     \end{tabular}
 \end{frame}
 
-\begin{frame}{Proof Logging Reformulations}
-    Some reformulations can be done inside the proof log.
-
-    \bigskip
-
-    We know how to do:
-    \begin{itemize}
-        \item Turning not-equals from sums into binary constraints.
-        \item 2D element constraints.
-        \item Autotabulation.
-    \end{itemize}
-\end{frame}
-
 \begin{frame}{The Glasgow Constraint Solver}
     \begin{center}
         \raisebox{-0.3em}{\url{https://github.com/ciaranm/glasgow-constraint-solver}}
@@ -998,21 +1366,9 @@
     \begin{itemize}
         \item MIT licence, written in fancy modern C++.
         \item All-different, integer linear inequality (including for variables
-            with very large domains), table, minimum / maximum of an array,
-            element, and absolute value.
-        \item I couldn't think of a name.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Propagator Bugs!}
-    \begin{itemize}
-        \item Early versions of integer linear inequality propagator had bug with negative values and negative coefficients.
-            \begin{itemize}
-                \item Integer division and modulus in C++ don't do what you expect for negative numbers.
-                \item I had forgotten this.
-            \end{itemize}
-        \item Using ``trust me'' assertions, no wrong answers from many tests.
-        \item Using proof logging: caught instantly.
+            with very large domains), smart table, minimum / maximum of an array,
+            element, absolute value, knapsack, regular expression,
+            Hamiltonian circuit.
     \end{itemize}
 \end{frame}
 
@@ -1054,12 +1410,53 @@
             \begin{itemize}
                 \item Even if due to a hardware or compiler error, or faulty maths.
                 \item We will need to get used to verification being (a constant factor) slower than solving.\pause
-                \item Under the assumption that the pseudo-Boolean problem is correct.
+                \item Still need the assumption that the pseudo-Boolean problem is correct.
             \end{itemize} \pause
         \item Also helps with testing and solver development: bugs are caught if incorrect reasoning is performed,
-            rather than if a wrong answer is produced. \pause
-        \item We get an auditable record of exactly what was actually solved. \pause
-        \item Potentially possible to re-use proof logs for empirical algorithmics?
+            rather than if a wrong answer is produced.\pause
+        \item We get an auditable record of exactly what was actually solved.
+            \begin{itemize}
+                \item Maybe one day this will be standard, if a computer makes a decision affecting
+                    you?\pause
+            \end{itemize}
+        \item Can analse proof logs to design better solvers in the future.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{This is Costing the British Public a Million Pounds?}
+    \pause
+    \begin{itemize}
+        \item Royal Academy of Engineering Research Fellowship: 80\% of \textsterling{}625,000 over five years
+            for ``Trustworthy Constraint Programming and Optimisation''.\pause
+            \vspace*{-0.3cm}\begin{multicols}{2}%
+            \begin{itemize}
+                \item Salary and NI: \textsterling{}311,875
+                \item Travel: \textsterling{}20,000
+                \item Equipment: \textsterling{}3,000
+                \item Technicians: \textsterling{}2,272\pause
+                \item Estates: \textsterling{}47,770
+                \item Indirect costs: \textsterling{}230,995\pause
+            \end{itemize}%
+            \end{multicols}
+        \item University money: \textsterling{}100,000 over five years.
+            \begin{itemize}
+                \item PhD student: \textsterling{}65,311 stipend, \textsterling{}16,651 fees over three
+                    and a half years.
+                \item Rest on equipment and travel.
+            \end{itemize}\pause\medskip
+        \item Engineering and Physical Research Council New Investigator Grant: 80\% of \textsterling{}429,243 over next
+            three years for ``The Science of Solving Hard Subgraph
+            Problems''.%
+            \vspace*{-0.3cm}\begin{multicols}{2}%
+            \begin{itemize}
+                \item Postdoc salary and NI: \textsterling{}158,405
+                \item Summer interns salary and NI: \textsterling{}13,008
+                \item Travel: \textsterling{}37,500
+                \item Technicians: \textsterling{}9,583\pause
+                \item Estates: \textsterling{}34,860
+                \item Indirect costs: \textsterling{}175,137
+            \end{itemize}
+            \end{multicols}
     \end{itemize}
 \end{frame}
 
@@ -1067,7 +1464,7 @@
     \usebackgroundtemplate{
         \tikz[overlay, remember picture]
         \node[at=(current page.south), anchor=south, inner
-        sep=0pt]{\includegraphics[keepaspectratio=true, width=\paperwidth]{background4.jpg}};
+        sep=0pt, yshift=-1cm]{\includegraphics[keepaspectratio=true, width=\paperwidth]{background4.jpg}};
     }
 
     \begin{frame}[plain,noframenumbering]
