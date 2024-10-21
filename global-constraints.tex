@@ -276,7 +276,7 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Revision: Matchings and All-Different}
+\begin{frame}{Matchings and All-Different}
 
     \begin{columns}
         \begin{column}{0.76\textwidth}
@@ -1140,7 +1140,7 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Shift Pattern Scheduling}
+\begin{frame}[fragile]{Shift Pattern Scheduling}
     \vspace*{-0.5em}%
     \only<1>{
         \begin{itemize}
@@ -1154,15 +1154,11 @@
             \item Night shift can only be followed by a night shift or a day off.
         \end{itemize}
     }%
-    \only<2-3>{\lstinputlisting[basicstyle=\tiny\ttfamily]{code/yaycapitalism1.mzn}
-    \only<3>{Those last two employees might not be very happy\ldots}
-        }%
-    \only<4>{\lstinputlisting[basicstyle=\tiny\ttfamily]{code/yaycapitalism1-out.txt}
-        }%
-    \only<5>{\lstinputlisting[basicstyle=\tiny\ttfamily]{code/yaycapitalism2.mzn}
-        }%
-    \only<6>{\lstinputlisting[basicstyle=\tiny\ttfamily]{code/yaycapitalism2-out.txt}
-        }%
+    \only<2>{\lstinputlisting[basicstyle=\tiny\ttfamily]{code/yaycapitalism1.mzn}}%
+    \only<3-4>{\lstinputlisting[basicstyle=\tiny\ttfamily]{code/yaycapitalism1-out.txt}
+    \uncover<4>{Those last two employees might not be very happy\ldots}}%
+    \only<5>{\lstinputlisting[basicstyle=\tiny\ttfamily]{code/yaycapitalism2.mzn}}%
+    \only<6>{\lstinputlisting[basicstyle=\tiny\ttfamily]{code/yaycapitalism2-out.txt}}%
 \end{frame}
 
 \begin{frame}{Ethical Considerations}
